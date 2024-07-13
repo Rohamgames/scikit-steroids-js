@@ -2,27 +2,16 @@
 
 
 
-## Getting started
+### Scikit-Learn equivalent for js (browser) and node and node (server) environment with GPU in mind
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+This project is far from being complete but lets move one step at a time
+Are you tired of having to deal with so many deps to make your python projects GPU accelerated?
+If yes you are in the right spot!
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+Write code and compare the results yourself
 
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://gitlab.com/Rohamgames/scikit-steroids-js.git
-git branch -M main
-git push -uf origin main
-```
-
-## Integrate with your tools
-
-- [ ] [Set up project integrations](https://gitlab.com/Rohamgames/scikit-steroids-js/-/settings/integrations)
+## Benchmarks
+We are benching the marks
 
 ## Collaborate with your team
 
@@ -43,10 +32,6 @@ Use the built-in continuous integration in GitLab.
 - [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
 
 ***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
 
 ## Suggestions for a good README
 
