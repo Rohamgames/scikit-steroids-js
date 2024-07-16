@@ -17,52 +17,49 @@ export default class KNeighborsClassifier {
     }
 
     predict(X) {
-        return X.map(x => Number(this._predictSingle(x)));
-    }
-
-    _predictSingle(x) {
-        const distances = this._calculateDistances(x);
-        const kNearestNeighbors = distances
-            .map((distance, i) => ({ distance, label: this.y_train[i] }))
-            .sort((a, b) => a.distance - b.distance)
-            .slice(0, this.n_neighbors);
-
-        const counts = {};
-        kNearestNeighbors.forEach(neighbor => {
-            const label = neighbor.label;
-            counts[label] = (counts[label] || 0) + 1;
+        const distancesKernel = this.gpu.createKernel(function(x, X_train, metric, p) {
+            let distance = 0;
+            for (let i = 0; i < this.constants.dim; i++) {
+                if (metric === 0) {  // minkowski
+                    distance += Math.pow(Math.abs(x[i] - X_train[this.thread.x][i]), p);
+                } else if (metric === 1) {  // hamming
+                    distance += (x[i] !== X_train[this.thread.x][i] ? 1 : 0);
+                } else if (metric === 2) {  // cosine
+                    distance += x[i] * X_train[this.thread.x][i];
+                }
+            }
+            if (metric === 0) {  // minkowski
+                return Math.pow(distance, 1 / p);
+            } else if (metric === 1) {  // hamming
+                return distance / this.constants.dim;
+            } else if (metric === 2) {  // cosine
+                let magnitudeX = 0, magnitudeTrain = 0;
+                for (let i = 0; i < this.constants.dim; i++) {
+                    magnitudeX += x[i] * x[i];
+                    magnitudeTrain += X_train[this.thread.x][i] * X_train[this.thread.x][i];
+                }
+                return 1 - (distance / (Math.sqrt(magnitudeX) * Math.sqrt(magnitudeTrain)));
+            }
+        }, {
+            constants: { dim: this.X_train[0].length },
+            output: [this.X_train.length]
         });
 
-        return Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
-    }
+        return X.map(x => {
+            const distances = distancesKernel(x, this.X_train, this.metric === 'minkowski' ? 0 : this.metric === 'hamming' ? 1 : 2, this.p);
+            const kNearestNeighbors = Array.from(distances)
+                .map((distance, i) => ({ distance, label: this.y_train[i] }))
+                .sort((a, b) => a.distance - b.distance)
+                .slice(0, this.n_neighbors);
 
+            const counts = {};
+            kNearestNeighbors.forEach(neighbor => {
+                const label = neighbor.label;
+                counts[label] = (counts[label] || 0) + 1;
+            });
 
-    _calculateDistance(a, b) {
-        switch (this.metric) {
-            case 'minkowski':
-                return this._minkowskiDistance(a, b, this.p);
-            case 'hamming':
-                return this._hammingDistance(a, b);
-            case 'cosine':
-                return this._cosineDistance(a, b);
-            default:
-                throw new Error(`Unknown metric: ${this.metric}`);
-        }
-    }
-
-    _minkowskiDistance(a, b, p) {
-        return Math.pow(a.reduce((sum, a_i, i) => sum + Math.abs(a_i - b[i]) ** p, 0), 1 / p);
-    }
-
-    _hammingDistance(a, b) {
-        return a.reduce((sum, a_i, i) => sum + (a_i !== b[i] ? 1 : 0), 0) / a.length;
-    }
-
-    _cosineDistance(a, b) {
-        const dotProduct = a.reduce((sum, a_i, i) => sum + a_i * b[i], 0);
-        const magnitudeA = Math.sqrt(a.reduce((sum, a_i) => sum + a_i ** 2, 0));
-        const magnitudeB = Math.sqrt(b.reduce((sum, b_i) => sum + b_i ** 2, 0));
-        return 1 - (dotProduct / (magnitudeA * magnitudeB));
+            return Number(Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b));
+        });
     }
 
     score(X, y) {
