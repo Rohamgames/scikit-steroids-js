@@ -62,21 +62,32 @@ export default class KNeighborsClassifier {
         const distances = X.map(x => (this.distanceKernel(x, this.X_train)));
         console.timeEnd('dis')
 
-        return X.map(x => {
-            console.time('map,sort');
-            const kNearestNeighbors = distances
+        return X.map((x, idx) => {
+            console.time('sort')
+            const sortedDistances = distances[idx]
                 .map((distance, i) => ({ distance, label: this.y_train[i] }))
                 .sort((a, b) => a.distance - b.distance)
                 .slice(0, this.n_neighbors);
-            console.timeEnd('map,sort')
-            const counts = {};
-            kNearestNeighbors.forEach(neighbor => {
+            console.timeEnd('sort')
+
+            const counts = new Array(this.n_classes).fill(0);
+            sortedDistances.forEach(neighbor => {
                 const label = neighbor.label;
-                counts[label] = (counts[label] || 0) + 1;
+                counts[label] += 1;
             });
 
-            return Number(Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b));
+            let maxCount = -1;
+            let maxLabel = -1;
+            for (let label = 0; label < this.n_classes; label++) {
+                if (counts[label] > maxCount) {
+                    maxCount = counts[label];
+                    maxLabel = label;
+                }
+            }
+
+            return maxLabel;
         });
+
     }
 
     score(X, y) {
