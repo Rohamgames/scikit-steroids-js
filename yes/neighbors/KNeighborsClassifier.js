@@ -1,14 +1,14 @@
 import { GPU } from 'gpu.js';
 
 export default class KNeighborsClassifier {
-    constructor(n_neighbors = 5, metric = 'minkowski', p = 2, type='cpu') {
+    constructor(n_neighbors = 5, metric = 'minkowski', p = 2, mode='cpu') {
         this.n_neighbors = n_neighbors;
         this.metric = metric;
         this.p = p;
         this.X_train = null;
         this.y_train = null;
 
-        this.gpu = new GPU();
+        this.gpu = new GPU({ mode });
     }
 
     fit(X, y) {
@@ -36,9 +36,6 @@ export default class KNeighborsClassifier {
         return Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
     }
 
-    _calculateDistances(x) {
-        return this.X_train.map(trainX => this._calculateDistance(x, trainX));
-    }
 
     _calculateDistance(a, b) {
         switch (this.metric) {
