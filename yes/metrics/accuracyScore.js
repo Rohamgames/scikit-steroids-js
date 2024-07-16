@@ -1,6 +1,6 @@
 export default function accuracyScore(y_true, y_pred) {
-    if(y_true.length) y_true = y_true.tolist();
-    if(y_pred.length) y_pred = y_pred.tolist();
+    if(!y_true.length) y_true = y_true.tolist();
+    if(!y_pred.length) y_pred = y_pred.tolist();
     if (y_true.length !== y_pred.length) {
         throw new Error('True and predicted labels must have the same length.');
     }
@@ -12,7 +12,5 @@ export default function accuracyScore(y_true, y_pred) {
         }
     }
 
-    const accuracy = correct / y_true.length;
-
-    return accuracy * 100;
+    return correct / y_true.length;
 }
