@@ -6,38 +6,31 @@ export default function trainTestSplit(data, labels, test_size = 0.2, random_sta
     data = nj.array(data);
     labels = nj.array(labels);
 
-    // Determine number of samples
-    const numSamples = data.shape[0];
-
-    // Calculate the number of samples for training and testing
-    const numTrain = Math.floor(numSamples * (1 - test_size));
-    const numTest = numSamples - numTrain;
-
-    // Create shuffled indices
-    const indices = Array.from({ length: numSamples }, (_, i) => i);
-    shuffleArray(indices);
-
-    // Split data and labels
-    const X_train = nj.zeros([numTrain, ...data.shape.slice(1)]);
-    const y_train = nj.zeros([numTrain]);
-    const X_test = nj.zeros([numTest, ...data.shape.slice(1)]);
-    const y_test = nj.zeros([numTest]);
-
-    for (let i = 0; i < numSamples; i++) {
-        const sampleIndex = indices[i];
-        const sampleData = data.pick(sampleIndex, null);
-        const sampleLabel = labels.get(sampleIndex);
-
-        if (i < numTrain) {
-            X_train.set(i, sampleData);
-            y_train.set(i, sampleLabel);
-        } else {
-            X_test.set(i - numTrain, sampleData);
-            y_test.set(i - numTrain, sampleLabel);
-        }
+    // Combine data and labels into one array of objects for shuffling
+    let combined = [];
+    for (let i = 0; i < data.shape[0]; i++) {
+        combined.push({ data: data.pick(i, null), label: labels.get(i) });
     }
 
-    return { X_train, X_test, y_train, y_test };
+    // Shuffle the combined array using Fisher-Yates algorithm
+    combined = shuffleArray(combined);
+
+    // Calculate the split index based on test_size
+    let splitIndex = Math.floor(combined.length * (1 - test_size));
+
+    // Split into training and testing sets
+    let trainingData = combined.slice(0, splitIndex).map(item => item.data);
+    let trainingLabels = combined.slice(0, splitIndex).map(item => item.label);
+    let testData = combined.slice(splitIndex).map(item => item.data);
+    let testLabels = combined.slice(splitIndex).map(item => item.label);
+
+    // Convert to NumJS arrays
+    trainingData = nj.array(trainingData);
+    trainingLabels = nj.array(trainingLabels);
+    testData = nj.array(testData);
+    testLabels = nj.array(testLabels);
+
+    return { X_train: trainingData, X_test: testData, y_train: trainingLabels, y_test: testLabels };
 }
 
 // Fisher-Yates shuffle implementation
@@ -46,4 +39,5 @@ function shuffleArray(array) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
     }
+    return array;
 }
