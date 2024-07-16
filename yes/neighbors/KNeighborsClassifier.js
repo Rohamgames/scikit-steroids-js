@@ -47,7 +47,8 @@ export default class KNeighborsClassifier {
 
         return X.map(x => {
             const distances = distancesKernel(x, this.X_train, this.metric === 'minkowski' ? 0 : this.metric === 'hamming' ? 1 : 2, this.p);
-            const kNearestNeighbors = Array.from(distances)
+            const distanceArray = Array.from(distances);
+            const kNearestNeighbors = distanceArray
                 .map((distance, i) => ({ distance, label: this.y_train[i] }))
                 .sort((a, b) => a.distance - b.distance)
                 .slice(0, this.n_neighbors);
