@@ -18,14 +18,14 @@ export default class KNeighborsClassifier {
         const dim = this.X_train[0].length;
         if (this.metric === 'minkowski') {
             const p = this.p;
-            this.distanceKernel = this.gpu.createKernel(function (x, X_train) {
+            this.distanceKernel = this.gpu.createKernel(function (x) {
                 let distance = 0;
                 for (let i = 0; i < this.constants.dim; i++) {
-                    distance += Math.pow(Math.abs(x[i] - X_train[this.thread.x][i]), this.constants.p);
+                    distance += Math.pow(Math.abs(x[i] - this.constants.XT[this.thread.x][i]), this.constants.p);
                 }
                 return Math.pow(distance, 1 / this.constants.p);
             }, {
-                constants: { dim, p },
+                constants: { dim, p, XT: X },
                 output: [this.X_train.length]
             });
         } else if (this.metric === 'hamming') {
@@ -58,8 +58,9 @@ export default class KNeighborsClassifier {
     }
 
     predict(X) {
-        const distances = X.map(x => (this.distanceKernel(x, this.X_train)));
-
+        console.time('DIST')
+        const distances = X.map(x => (this.distanceKernel(x)));
+        console.timeEnd('DIST')
         return X.map((x, idx) => {
             const indexedDistances = Array.from(distances[idx]).map((distance, i) => ({ distance, label: this.y_train[i], index: i }));
             indexedDistances.sort((a, b) => a.distance - b.distance);
