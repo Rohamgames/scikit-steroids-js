@@ -16,20 +16,20 @@ export default class KNeighborsClassifier {
         this.y_train = y.map(label => Number(label));  // Ensure y_train contains numbers
         // initialize the kernel now that X_train is available
         const dim = this.X_train[0].length;
-
         if (this.metric === 'minkowski') {
-            this.distanceKernel = this.gpu.createKernel(function (x, X_train, p) {
+            const p = this.p;
+            this.distanceKernel = this.gpu.createKernel(function (x, X_train) {
                 let distance = 0;
                 for (let i = 0; i < this.constants.dim; i++) {
-                    distance += Math.pow(Math.abs(x[i] - X_train[this.thread.x][i]), p);
+                    distance += Math.pow(Math.abs(x[i] - X_train[this.thread.x][i]), this.constants.p);
                 }
-                return Math.pow(distance, 1 / p);
+                return Math.pow(distance, 1 / this.constants.p);
             }, {
-                constants: { dim },
+                constants: { dim, p },
                 output: [this.X_train.length]
             });
         } else if (this.metric === 'hamming') {
-            this.distanceKernel = this.gpu.createKernel(function (x, X_train,p) {
+            this.distanceKernel = this.gpu.createKernel(function (x, X_train) {
                 let distance = 0;
                 for (let i = 0; i < this.constants.dim; i++) {
                     distance += (x[i] !== X_train[this.thread.x][i] ? 1 : 0);
@@ -40,7 +40,7 @@ export default class KNeighborsClassifier {
                 output: [this.X_train.length]
             });
         } else if (this.metric === 'cosine') {
-            this.distanceKernel = this.gpu.createKernel(function (x, X_train,p) {
+            this.distanceKernel = this.gpu.createKernel(function (x, X_train) {
                 let dotProduct = 0;
                 let magnitudeX = 0;
                 let magnitudeTrain = 0;
@@ -58,15 +58,13 @@ export default class KNeighborsClassifier {
     }
 
     predict(X) {
+        console.time('dis')
+        const distances = X.map(x => (this.distanceKernel(x, this.X_train)));
+        console.timeEnd('dis')
+
         return X.map(x => {
-            console.time('dis')
-            const distances = this.distanceKernel(x, this.X_train, this.p);
-            console.timeEnd('dis')
-            console.time('disArr')
-            const distanceArray = distances;
-            console.timeEnd('disArr')
-            console.time('map,sort')
-            const kNearestNeighbors = distanceArray
+            console.time('map,sort');
+            const kNearestNeighbors = distances
                 .map((distance, i) => ({ distance, label: this.y_train[i] }))
                 .sort((a, b) => a.distance - b.distance)
                 .slice(0, this.n_neighbors);
