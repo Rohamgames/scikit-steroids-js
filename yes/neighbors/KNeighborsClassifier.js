@@ -29,7 +29,7 @@ export default class KNeighborsClassifier {
                 output: [this.X_train.length]
             });
         } else if (this.metric === 'hamming') {
-            this.distanceKernel = this.gpu.createKernel(function (x, X_train) {
+            this.distanceKernel = this.gpu.createKernel(function (x, X_train,p) {
                 let distance = 0;
                 for (let i = 0; i < this.constants.dim; i++) {
                     distance += (x[i] !== X_train[this.thread.x][i] ? 1 : 0);
@@ -40,7 +40,7 @@ export default class KNeighborsClassifier {
                 output: [this.X_train.length]
             });
         } else if (this.metric === 'cosine') {
-            this.distanceKernel = this.gpu.createKernel(function (x, X_train) {
+            this.distanceKernel = this.gpu.createKernel(function (x, X_train,p) {
                 let dotProduct = 0;
                 let magnitudeX = 0;
                 let magnitudeTrain = 0;
@@ -59,12 +59,18 @@ export default class KNeighborsClassifier {
 
     predict(X) {
         return X.map(x => {
+            console.time('dis')
             const distances = this.distanceKernel(x, this.X_train, this.p);
-            const distanceArray = Array.from(distances);
+            console.timeEnd('dis')
+            console.time('disArr')
+            const distanceArray = distances;
+            console.timeEnd('disArr')
+            console.time('map,sort')
             const kNearestNeighbors = distanceArray
                 .map((distance, i) => ({ distance, label: this.y_train[i] }))
                 .sort((a, b) => a.distance - b.distance)
                 .slice(0, this.n_neighbors);
+            console.timeEnd('map,sort')
             const counts = {};
             kNearestNeighbors.forEach(neighbor => {
                 const label = neighbor.label;
