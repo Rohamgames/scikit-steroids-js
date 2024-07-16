@@ -1,3 +1,5 @@
+import { GPU } from 'gpu.js';
+
 export default class KNeighborsClassifier {
     constructor(n_neighbors = 5, metric = 'minkowski', p = 2, type='cpu') {
         this.n_neighbors = n_neighbors;
@@ -5,6 +7,8 @@ export default class KNeighborsClassifier {
         this.p = p;
         this.X_train = null;
         this.y_train = null;
+
+        this.gpu = new GPU();
     }
 
     fit(X, y) {
