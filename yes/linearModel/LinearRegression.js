@@ -4,14 +4,14 @@ export default class LinearRegression {
     }
 
     fit(X, y) {
-        const Xt = math.transpose(X);
-        const XtX = math.multiply(Xt, X);
-        const XtX_inv = math.inv(XtX);
-        const XtX_inv_Xt = math.multiply(XtX_inv, Xt);
-        this.weights = math.multiply(XtX_inv_Xt, y);
+        const Xt = Math.transpose(X);
+        const XtX = Math.multiply(Xt, X);
+        const XtX_inv = Math.inv(XtX);
+        const XtX_inv_Xt = Math.multiply(XtX_inv, Xt);
+        this.weights = Math.multiply(XtX_inv_Xt, y);
     }
 
     predict(X) {
-        return math.multiply(X, this.weights);
+        return Math.multiply(X, this.weights);
     }
 }
