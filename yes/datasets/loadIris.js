@@ -1,6 +1,3 @@
-import { readFile } from 'fs/promises';
-import path from 'path';
-
 const isNode = typeof process !== 'undefined' && process.versions != null && process.versions.node != null;
 
 export default async function loadIris() {
@@ -8,9 +5,14 @@ export default async function loadIris() {
 
     if (isNode) {
         // Node.js environment
+        const { readFile } = await import('fs/promises');
+        const path = await import('path');
         const csvFilePath = path.resolve('./yes/datasets/data/iris.data.csv');
         fileContent = await readFile(csvFilePath, { encoding: 'utf-8' });
     } else {
+        // const scriptPath = import.meta.url;
+        // const scriptDirectory = scriptPath.substring(0, scriptPath.lastIndexOf('/')).split('/');
+        // console.log(scriptDirectory);
         // Browser environment
         const response = await fetch('./yes/datasets/data/iris.data.csv'); // Adjust the path
         fileContent = await response.text();
@@ -54,6 +56,5 @@ function parseCSV(content) {
             return obj;
         }, {});
     });
-    console.log(records)
     return records;
 }
