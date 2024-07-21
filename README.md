@@ -2,7 +2,7 @@
 
 
 
-### Scikit-Learn equivalent for js (browser) and node and node (server) environment with GPU in mind
+### Scikit-Learn equivalent for js (browser) and node (server) environment with GPU in mind
 
 This project is far from being complete but lets move one step at a time
 Are you tired of having to deal with so many deps to make your python projects GPU accelerated?
