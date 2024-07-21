@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>KNN BENCHMARK</title>
+    <script src="../node_modules/gpu.js/dist/gpu-browser.min.js"></script>
+<!--    <script type="module" src="../index.js"></script>-->
+    <script type="module">
+        import  loadIris  from '../yes/datasets/loadIris.js';
+
+        loadIris().then(iris => {
+            console.log(iris);
+        }).catch(error => {
+            console.error('Error loading iris dataset:', error);
+        });
+    </script>
+</head>
+<body>
+
+
+</body>
+</html>
