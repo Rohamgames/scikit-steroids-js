@@ -1,0 +1,42 @@
+{
+  "name": "scikit-steroids",
+  "version": "0.0.1",
+  "description": "Lets do data science on JS and TS and GPU ready code running on both server and client",
+  "main": "index.js",
+  "scripts": {
+    "bench": "node benchmark.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/Rohamgames/scikit-steroids-js.git"
+  },
+  "keywords": [
+    "scikitlearn",
+    "scikit",
+    "datamining",
+    "science",
+    "machine",
+    "node",
+    "learning",
+    "gpu",
+    "dm",
+    "scikit",
+    "learn",
+    "javascript",
+    "typescript"
+  ],
+  "author": "Roham Games",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://gitlab.com/Rohamgames/scikit-steroids-js/issues"
+  },
+  "type": "module",
+  "homepage": "https://gitlab.com/Rohamgames/scikit-steroids-js#readme",
+  "dependencies": {
+    "csv-parse": "^5.5.6",
+    "gpu.js": "^2.16.0",
+    "mathjs": "^13.0.2",
+    "sharp": "^0.33.4"
+  }
+}
