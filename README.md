@@ -10,6 +10,13 @@ If yes you are in the right spot!
 
 Write code and compare the results yourself
 
+## Install
+Either use
+```npm install scikit-steroids```
+or
+```yarn add scikit-steroids```
+or use other package managers
+
 ## Benchmarks
 We are benching the marks
 
